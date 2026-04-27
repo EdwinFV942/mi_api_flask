@@ -1,10 +1,21 @@
 import os
 
 class Config:
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'mysql+pymysql://root:@localhost/extraordinary')
+    # Obtener variables desde .env
+    DB_NAME = os.getenv('nombre_db', 'extraordinary')
+    DB_USER = os.getenv('usuario_db', 'root')
+    DB_PASSWORD = os.getenv('password_db', '')
+    DB_HOST = os.getenv('host_db', 'localhost')
+
+    # Construir la URI dinámicamente
+    SQLALCHEMY_DATABASE_URI = os.getenv(
+        'DATABASE_URL',
+        f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}"
+    )
+
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    # Configuración estricta de Swagger para usar /docs
+    # Configuración de Swagger
     SWAGGER = {
         "headers": [],
         "specs": [
