@@ -2,8 +2,10 @@ from flask import Flask, jsonify, request
 from flasgger import Swagger
 from config import Config
 from routes.api import api_bp
+from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
+migrate = Migrate()
 
 def create_app():
     app = Flask(__name__)
@@ -11,6 +13,9 @@ def create_app():
     
     # Inicializar la base de datos
     db.init_app(app)
+    migrate.init_app(app, db)
+
+    from models import categorias, cursos, alumnos  # Importar modelos para que SQLAlchemy los reconozca
     
     # Inicializar Swagger con la configuración y un template de información
     swagger_template = {
