@@ -1,23 +1,26 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify
 from flasgger import Swagger
 from config import Config
 from routes.api import api_bp
 from flask_migrate import Migrate
-from flask_sqlalchemy import SQLAlchemy
-db = SQLAlchemy()
+
+# 👇 IMPORTANTE: importar db desde models (NO desde cada modelo)
+from models import db
+from models.categorias import Categoria
+from models.cursos import Curso
+from models.alumnos import Alumno
+
 migrate = Migrate()
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
-    
+
     # Inicializar la base de datos
     db.init_app(app)
     migrate.init_app(app, db)
 
-    from models import categorias, cursos, alumnos  # Importar modelos para que SQLAlchemy los reconozca
-    
-    # Inicializar Swagger con la configuración y un template de información
+    # Configuración de Swagger
     swagger_template = {
         "info": {
             "title": "API Escolar REST",
@@ -25,16 +28,21 @@ def create_app():
             "version": "1.0.0"
         }
     }
-    Swagger(app, config=app.config['SWAGGER'], template=swagger_template)
 
-    # Registrar las rutas
-    app.register_blueprint(api_bp)
+    Swagger(app, config=app.config.get('SWAGGER', {}), template=swagger_template)
+
+    # Registrar rutas
+    app.register_blueprint(api_bp, url_prefix='/api')
 
     @app.route('/', methods=['GET'])
     def index():
-        return jsonify({"mensaje": "API funcionando. Visita /docs para ver Swagger."})
+        return jsonify({
+            "mensaje": "API funcionando correctamente",
+            "docs": "/docs"
+        })
 
     return app
+
 
 if __name__ == '__main__':
     app = create_app()
