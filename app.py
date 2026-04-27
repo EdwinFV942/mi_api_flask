@@ -8,22 +8,29 @@ db = SQLAlchemy()
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
-
+    
     # Inicializar la base de datos
     db.init_app(app)
-
-    # Registrar el blueprint de la API
-    app.register_blueprint(api_bp, url_prefix='/api')
-
-    # Configurar Swagger
-    Swagger(app)
-    @app.route('/')
-    def home():
-        return { "message": "api"}
     
+    # Inicializar Swagger con la configuración y un template de información
+    swagger_template = {
+        "info": {
+            "title": "API Escolar REST",
+            "description": "API para gestionar Categorías, Cursos y Alumnos.",
+            "version": "1.0.0"
+        }
+    }
+    Swagger(app, config=app.config['SWAGGER'], template=swagger_template)
+
+    # Registrar las rutas
+    app.register_blueprint(api_bp)
+
+    @app.route('/', methods=['GET'])
+    def index():
+        return jsonify({"mensaje": "API funcionando. Visita /docs para ver Swagger."})
+
     return app
 
-app = create_app()
-
 if __name__ == '__main__':
-    app.run(debug=False)
+    app = create_app()
+    app.run(debug=True, port=5000)

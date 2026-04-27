@@ -103,3 +103,5 @@ def get_enrollments():
         description: Estructura de inscripciones
     """
     return jsonify(alumnos.obtener_inscripciones())
+
+
