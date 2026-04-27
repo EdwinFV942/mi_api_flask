@@ -13,16 +13,10 @@ API REST desarrollada con Flask y documentada con Swagger, diseñada para gestio
 
 ## ⚠️ Configuración de Base de Datos
 
-Esta API está configurada para trabajar con **MySQL**, por lo que debes:
+Esta API está configurada para trabajar con **MySQL** y utiliza variables de entorno (`.env`).
 
-1. Crear una base de datos en MySQL.
-2. Configurar la conexión en tu archivo `config.py` o variables de entorno.
+La conexión se construye dinámicamente en `config.py`.
 
-Ejemplo de conexión:
-
-```python
-SQLALCHEMY_DATABASE_URI = "mysql+pymysql://usuario:password@localhost/nombre_bd"
-```
 ---
 
 ## ⚙️ Instrucciones de Instalación y Ejecución
@@ -47,7 +41,52 @@ source venv/bin/activate
 venv\Scripts\activate
 ```
 
-4. **Instalar dependencias:**
+---
+
+## 🔐 Configurar Variables de Entorno (.env)
+
+El proyecto utiliza variables de entorno para la conexión a la base de datos.
+
+### Crear archivo `.env`
+
+**En Windows:**
+```bash
+copy .env.example .env
+```
+
+**En Mac/Linux:**
+```bash
+cp .env.example .env
+```
+
+### Configurar valores
+
+Edita el archivo `.env` con tus datos:
+
+```env
+nombre_db=nombre_de_tu_base_de_datos
+usuario_db=usuario_de_tu_base_de_datos
+password_db=tu_password
+host_db=localhost
+```
+
+---
+
+## 🗄️ Creación de Base de Datos
+
+Crea la base de datos usando el mismo nombre que definiste en `.env`:
+
+```sql
+CREATE DATABASE nombre_de_tu_base_de_datos;
+```
+
+> ⚠️ Importante:  
+El nombre de la base de datos debe coincidir con `nombre_db` en tu `.env`.
+
+---
+
+## 📦 Instalación de Dependencias
+
 ```bash
 pip install -r requirements.txt
 ```
@@ -56,7 +95,7 @@ pip install -r requirements.txt
 
 ## 🚀 Inicialización del Proyecto
 
-Una vez configurada la base de datos en MySQL y creada la DB `extraordinary`, ejecuta los siguientes comandos:
+Una vez configurada la base de datos, ejecuta:
 
 ```bash
 flask db upgrade
@@ -68,7 +107,7 @@ python app.py
 
 ## 📄 Documentación (Swagger)
 
-Una vez que el servidor esté corriendo, abre tu navegador web y visita la siguiente ruta para probar los endpoints interactivamente:
+Accede a la documentación en:
 
 👉 http://127.0.0.1:5000/docs
 
@@ -76,9 +115,9 @@ Una vez que el servidor esté corriendo, abre tu navegador web y visita la sigui
 
 ## 📌 Notas Finales
 
-- Asegúrate de que MySQL esté corriendo antes de iniciar la aplicación.
-- Verifica que las credenciales de la base de datos sean correctas.
-- Si tienes problemas con migraciones, puedes eliminarlas y generarlas nuevamente.
+- Asegúrate de que MySQL esté corriendo antes de iniciar la aplicación
+- Verifica que tu archivo `.env` esté correctamente configurado
+- Si tienes problemas con migraciones, puedes regenerarlas
 
 ---
 
