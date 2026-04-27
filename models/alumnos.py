@@ -1,10 +1,13 @@
-from flask_sqlalchemy import SQLAlchemy
-db = SQLAlchemy()
+from models import db, inscripciones
 
 class Alumno(db.Model):
     __tablename__ = 'alumnos'
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(255), nullable=False)
+
+    # ESTA ES LA RELACIÓN QUE TE FALTABA PARA QUE FUNCIONE EL SEEDER
+    cursos = db.relationship('Curso', secondary=inscripciones, lazy='subquery',
+        backref=db.backref('alumnos', lazy=True))
 
     def to_dict(self):
         return {
