@@ -1,5 +1,7 @@
 import os
+from dotenv import load_dotenv
 
+load_dotenv()
 class Config:
     # Obtener variables desde .env
     DB_NAME = os.getenv('nombre_db', 'extraordinary')
