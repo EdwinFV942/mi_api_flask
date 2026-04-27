@@ -1,17 +1,37 @@
 from flask import Blueprint, jsonify
-from models import categorias, cursos, alumnos
+from models.categorias import Categoria
+from models.cursos import Curso
+from models.alumnos import Alumno
+
 
 api_bp = Blueprint('api', __name__)
 
 @api_bp.route('/categories', methods=['GET'])
 def get_categories():
-    """Lista todas las categorías
+    """
+    Obtener todas las categorías
     ---
     responses:
       200:
-        description: Lista de categorías
+        description: Lista de todas las categorías registradas en la base de datos
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: 1
+              nombre:
+                type: string
+                example: "Programación"
     """
-    return jsonify(categorias.obtener_todas())
+    # 1. Consultar todas las categorías usando SQLAlchemy
+    categorias = Categoria.query.all()
+    
+    resultado = [categoria.to_dict() for categoria in categorias]
+    
+    return jsonify(resultado), 200
 
 @api_bp.route('/categories/<int:id>/courses', methods=['GET'])
 def get_courses_by_category(id):
@@ -26,7 +46,8 @@ def get_courses_by_category(id):
       200:
         description: Lista de cursos
     """
-    return jsonify(cursos.obtener_por_categoria(id))
+    cursos = Curso.query.filter(Curso.categoria_id == id).all()
+    return jsonify([c.to_dict() for c in cursos])
 
 @api_bp.route('/categories/<int:id>/courses/count', methods=['GET'])
 def get_courses_count_by_category(id):
@@ -41,7 +62,7 @@ def get_courses_count_by_category(id):
       200:
         description: Conteo de cursos
     """
-    cantidad = cursos.contar_por_categoria(id)
+    cantidad = Curso.query.filter(Curso.categoria_id == id).count()
     return jsonify({"categoria_id": id, "cantidad_cursos": cantidad})
 
 @api_bp.route('/courses', methods=['GET'])
@@ -52,7 +73,8 @@ def get_courses():
       200:
         description: Lista de cursos
     """
-    return jsonify(cursos.obtener_todos())
+    cursos = Curso.query.all()
+    return jsonify([c.to_dict() for c in cursos])
 
 @api_bp.route('/courses/<int:id>/students', methods=['GET'])
 def get_students_by_course(id):
@@ -67,7 +89,11 @@ def get_students_by_course(id):
       200:
         description: Alumnos inscritos
     """
-    return jsonify(alumnos.obtener_por_curso(id))
+    alumnos = Alumno.query.filter(
+        Alumno.cursos.any(Curso.id == id)
+    ).all()
+
+    return jsonify([a.to_dict() for a in alumnos])
 
 @api_bp.route('/students', methods=['GET'])
 def get_students():
@@ -77,7 +103,8 @@ def get_students():
       200:
         description: Lista de alumnos
     """
-    return jsonify(alumnos.obtener_todos())
+    alumnos = Alumno.query.all()
+    return jsonify([a.to_dict() for a in alumnos])
 
 @api_bp.route('/students/<int:id>/courses', methods=['GET'])
 def get_courses_by_student(id):
@@ -92,7 +119,12 @@ def get_courses_by_student(id):
       200:
         description: Cursos del alumno
     """
-    return jsonify(alumnos.obtener_cursos_por_alumno(id))
+    alumno = Alumno.query.get(id)
+
+    if not alumno:
+        return jsonify({"error": "Alumno no encontrado"}), 404
+
+    return jsonify([c.to_dict() for c in alumno.cursos])
 
 @api_bp.route('/enrollments', methods=['GET'])
 def get_enrollments():
@@ -102,6 +134,14 @@ def get_enrollments():
       200:
         description: Estructura de inscripciones
     """
-    return jsonify(alumnos.obtener_inscripciones())
+    alumnos = Alumno.query.all()
+
+    return [
+        {
+            "alumno": alumno.to_dict(),
+            "cursos": [curso.to_dict() for curso in alumno.cursos]
+        }
+        for alumno in alumnos
+    ]
 
 
